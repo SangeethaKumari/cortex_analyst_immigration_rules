@@ -1,3 +1,4 @@
 streamlit
 pandas
-snowflake-snowpark-python
+# Requires Python >=3.8, <3.11
+snowflake-snowpark-python==1.6.1
