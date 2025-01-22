@@ -127,7 +127,7 @@ def config_options():
 
 def get_similar_chunks_search_service(query):
 
-   if st.session_state.category_value == "ALL":
+    if st.session_state.category_value == "ALL":
         response = session.sql(f"SELECT * FROM cortex_analyst_immigration_rules.data.docs_chunks_table WHERE MATCHES({query}) LIMIT {NUM_CHUNKS}").collect()
     else:
         response = session.sql( f"SELECT * FROM cortex_analyst_immigration_rules.data.docs_chunks_table WHERE category = '{st.session_state.category_value}' AND MATCHES({query}) LIMIT {NUM_CHUNKS}").collect()
