@@ -1,17 +1,18 @@
 import streamlit as st # Import python packages
-from snowflake.snowpark import Session  # Import Snowflake Snowpark
+from snowflake.snowpark.context import get_active_session
 
 from snowflake.core import Root
 
 import pandas as pd
 import json
 
+
 # Add custom CSS for the background image
 st.markdown(
     """
     <style>
     body {
-        background-color: #d4f1c5;
+        background-color: #ADD8E6;
         background-size: cover;
         background-repeat: no-repeat;
         background-attachment: fixed;
@@ -33,10 +34,10 @@ st.markdown(
 
 
 # Display App Title and Description
-st.title(":green_heart: Chat Document Assistant on Immigration Rules")
+st.title(":airplane: Immigration Rules Assistant ")
 st.markdown("""
 This app helps you explore and answer immigration-related questions based on uploaded documents.
-Ask questions about topics like different types of visa, how to obtain the visa, documents to fill and more!
+Ask questions about topics like different types of visa, how to obtain the visa, documents to fill and more!!
 """)
 
 # Add a section to list sample questions
@@ -57,14 +58,13 @@ st.subheader("Ask Your Immigration Question Below:")
 question = st.text_input("Enter your question:", placeholder="e.g.,How to get the H1 visa")
 
 # Add a line to clarify that the app focuses on immigration-related questions
-st.sidebar.title(":seedling: About This App")
+st.sidebar.title(":passport_control: About This App")
 st.sidebar.markdown("""
 This app specializes in answering immigration-related questions based on uploaded documents.
 It covers different types of visa, how to obtain the visa, documents to fill and more.
 """)
+pd.set_option("max_colwidth",None)
 
-# Configure pandas to display all content in cells
-pd.set_option("max_colwidth", None)
 ### Default Values
 NUM_CHUNKS = 3 # Num-chunks provided as context. Play with this to check how it affects your accuracy
 
@@ -82,19 +82,7 @@ COLUMNS = [
     "category"
 ]
 
-connection_params = {
-    "account": st.secrets["SNOWFLAKE_ACCOUNT"],
-    "user": st.secrets["SNOWFLAKE_USER"],
-    "password": st.secrets["SNOWFLAKE_PASSWORD"],
-    "role": st.secrets["SNOWFLAKE_ROLE"],
-    "warehouse": st.secrets["SNOWFLAKE_WAREHOUSE"],
-    "database": st.secrets["SNOWFLAKE_DATABASE"],
-    "schema": st.secrets["SNOWFLAKE_SCHEMA"],
-}
-
-# Establish Snowflake session
-session = Session.builder.configs(connection_params).create()
-
+session = get_active_session()
 root = Root(session)                         
 
 svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
@@ -182,7 +170,7 @@ def complete(myquestion):
 
 def main():
     
-    st.title(f":speech_balloon: Chat Document Assistant with Snowflake Cortex")
+    st.title(f":speech_balloon: Immigration Rules Assistant with Snowflake Cortex Search")
     st.write("This is the list of documents you already have and that will be used to answer your questions:")
    # docs_available = session.sql("ls @docs").collect()
     docs_available = session.sql("ls @CORTEX_ANALYST_IMMIGRATION_RULES.DATA.DOCS").collect()
