@@ -1,5 +1,5 @@
 import streamlit as st # Import python packages
-from snowflake.snowpark.context import Session
+from snowflake.snowpark import Session  # Import Snowflake Snowpark
 
 
 import pandas as pd
