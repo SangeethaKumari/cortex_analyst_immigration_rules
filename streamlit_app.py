@@ -81,10 +81,24 @@ COLUMNS = [
     "category"
 ]
 
-session = get_active_session()
-root = Root(session)                         
+#session = get_active_session()
+#root = Root(session)                         
+connection_params = {
+    "account": st.secrets["SNOWFLAKE_ACCOUNT"],
+    "user": st.secrets["SNOWFLAKE_USER"],
+    "password": st.secrets["SNOWFLAKE_PASSWORD"],
+    "role": st.secrets["SNOWFLAKE_ROLE"],
+    "warehouse": st.secrets["SNOWFLAKE_WAREHOUSE"],
+    "database": st.secrets["SNOWFLAKE_DATABASE"],
+    "schema": st.secrets["SNOWFLAKE_SCHEMA"],
+}
 
-svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
+# Establish Snowflake session
+session = Session.builder.configs(connection_params).create()
+
+
+
+#svc = root.databases[CORTEX_SEARCH_DATABASE].schemas[CORTEX_SEARCH_SCHEMA].cortex_search_services[CORTEX_SEARCH_SERVICE]
    
 ### Functions
      
@@ -113,12 +127,12 @@ def config_options():
 
 def get_similar_chunks_search_service(query):
 
-    if st.session_state.category_value == "ALL":
-        response = svc.search(query, COLUMNS, limit=NUM_CHUNKS)
-    else: 
-        filter_obj = {"@eq": {"category": st.session_state.category_value} }
-        response = svc.search(query, COLUMNS, filter=filter_obj, limit=NUM_CHUNKS)
-
+   if st.session_state.category_value == "ALL":
+        response = session.sql(f"SELECT * FROM cortex_analyst_immigration_rules.data.docs_chunks_table WHERE MATCHES({query}) LIMIT {NUM_CHUNKS}").collect()
+    else:
+        response = session.sql(
+            f"SELECT * FROM cortex_analyst_immigration_rules.data.docs_chunks_table WHERE category = '{st.session_state.category_value}' AND MATCHES({query}) LIMIT {NUM_CHUNKS}"
+        ).collect()
     st.sidebar.json(response.json())
   
 
